@@ -11,6 +11,8 @@ function query($query)
     return $rows;
 }
 
+
+
 function simpan($data)
 {
     global $koneksi;
@@ -24,10 +26,17 @@ function simpan($data)
         return false;
     }
     //Query input data
-    $query = "INSERT INTO project values ('', '$judul', '$tanggal_mulai', '$tanggal_selesai', '$isi', '$gambar')";
-    mysqli_query($koneksi, $query);
-    return mysqli_affected_rows($koneksi);
+    $query = "INSERT INTO project (judul, tanggal_mulai, tanggal_selesai, isi, gambar)
+VALUES ('$judul', '$tanggal_mulai', '$tanggal_selesai', '$isi', '$gambar')";
+    $result = mysqli_query($koneksi, $query);
+    if (!$result) {
+        echo "<script>alert ('Data gagal ditambahkan');</script>";
+        return false;
+    }
+    return true;
 }
+
+
 
 function upload()
 {
@@ -36,12 +45,12 @@ function upload()
     $error = $_FILES['gambar']['error'];
     $tmpGambar = $_FILES['gambar']['tmp_name'];
     if ($error === 4) {
-        echo "<script>alert ('pilih file dahulu');</script>";
+        echo "<script>alert ('Pilih file dahulu');</script>";
         return false;
     }
     $ekstensiGambarValid = ['jpg', 'jpeg', 'png'];
-    $ekstensiGambar = explode('.', $namaGambar);
-    $ekstensiGambar = strtolower(end($ekstensiGambar));
+    $ekstensiGambar = pathinfo($namaGambar, PATHINFO_EXTENSION);
+    $ekstensiGambar = strtolower($ekstensiGambar);
     if (!in_array($ekstensiGambar, $ekstensiGambarValid)) {
         echo "<script>alert ('Yang anda upload bukan gambar');</script>";
         return false;
@@ -50,13 +59,13 @@ function upload()
         echo "<script>alert ('Ukuran gambar terlalu besar');</script>";
         return false;
     }
-    $namaGambarBaru = uniqid();
-    $namaGambarBaru .= '.';
-    $namaGambarBaru .= $ekstensiGambar;
+    $namaGambarBaru = uniqid() . '.' . $ekstensiGambar;
     move_uploaded_file($tmpGambar, '../images/' . $namaGambarBaru);
-
     return $namaGambarBaru;
 }
+
+
+
 function uploadDokumen()
 {
     $namaDokumen = $_FILES['dokumen']['name'];
@@ -95,6 +104,7 @@ function uploadDokumen()
 
 // };
 
+
 function kirimPesan($data)
 {
     global $koneksi;
@@ -102,15 +112,16 @@ function kirimPesan($data)
     $nama = htmlspecialchars($data['nama']);
     $email = htmlspecialchars($data["email"]);
     $pesan = htmlspecialchars($data["pesan"]);
-    $query = "INSERT INTO contact
-			values
-		('', '$nama', '$email', '$pesan')";
+    $query = "INSERT INTO contact (nama, email, pesan) VALUES ('$nama', '$email', '$pesan')";
 
-    mysqli_query($koneksi, $query);
-
-    return mysqli_affected_rows($koneksi);
+    if (mysqli_query($koneksi, $query)) {
+        return true;
+    } else {
+        // Jika terjadi kesalahan saat menjalankan query
+        $error = mysqli_error($koneksi);
+        return "Error: " . $error;
+    }
 }
-
 
 function hapus_project($id)
 {
