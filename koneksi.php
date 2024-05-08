@@ -1,5 +1,5 @@
 <?php
-$koneksi = mysqli_connect("localhost", "sudarsono", "sono07032024", "sudarsono_portofolio");
+$koneksi = mysqli_connect("mysql", "sudarsono", "sono07032024", "db_sudarsono");
 function query($query)
 {
     global $koneksi;
